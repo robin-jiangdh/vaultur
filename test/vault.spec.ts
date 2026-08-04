@@ -31,7 +31,8 @@ describe("vault", () => {
 		expect(cipher.name).toBe(LOGIN_CIPHER.name)
 		expect(cipher.login.username).toBe(LOGIN_CIPHER.login.username)
 		expect(cipher.login.uri).toBe(LOGIN_CIPHER.login.uris[0]!.uri)
-		expect(cipher.data.username).toBe(LOGIN_CIPHER.login.username)
+		// Clients 2026.7.0+ treat cipher.data as a string blob; omit legacy object.
+		expect(cipher.data).toBeUndefined()
 		expect(cipher.edit).toBe(true)
 		expect(cipher.viewPassword).toBe(true)
 		expect(cipher.permissions).toEqual({ delete: true, restore: true })
@@ -132,6 +133,9 @@ describe("vault", () => {
 		expect(sync.profile.email).toBe(TEST_USER.email)
 		expect(sync.profile.key).toBe(TEST_USER.key)
 		expect(sync.ciphers).toHaveLength(1)
+		expect(sync.ciphers[0].login).toBeTruthy()
+		// Clients 2026.7.0+ treat cipher.data as a string blob; object shape crashes WASM.
+		expect(sync.ciphers[0].data).toBeUndefined()
 		expect(sync.folders).toHaveLength(1)
 		expect(sync.collections).toEqual([])
 		expect(sync.policies).toEqual([])

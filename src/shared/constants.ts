@@ -234,8 +234,8 @@ export const DEFAULT_EXCLUDED_GLOBALS = "[]"
 
 /** Client versions this server has been verified against. */
 export const COMPAT = {
-	/** api version reported by /api/config; mirrors vaultwarden. */
-	apiVersion: "2026.4.0",
+	/** api version reported by /api/config; mirrors vaultwarden / Bitwarden. */
+	apiVersion: "2026.7.0",
 	serverName: "Vaultur",
 	serverUrl: "https://github.com/nommyt/vaultur"
 } as const

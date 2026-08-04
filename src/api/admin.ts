@@ -30,7 +30,7 @@ import {
 	clearConfigOverrides
 } from "../services/server-config"
 import { newUserShell } from "../services/users"
-import { MembershipStatus, MembershipType } from "../shared"
+import { COMPAT, MembershipStatus, MembershipType } from "../shared"
 import { ci, constantTimeEqualStr, normalizeEmail, uuid } from "../util"
 import {
 	renderLogin,
@@ -516,7 +516,7 @@ async function diagnosticsData(c: Ctx) {
 	const cfg = c.get("config")
 	const userCount = (await db.select({ n: sql<number>`count(*)` }).from(users))[0]!.n
 	return {
-		version: "2025.12.0",
+		version: COMPAT.apiVersion,
 		dbType: "d1",
 		running: true,
 		userCount,

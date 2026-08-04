@@ -370,16 +370,9 @@ export async function cipherToJson(cipher: Cipher, opts: CipherJsonOptions): Pro
 		}
 	}
 
-	const dataJson: JsonMap | null =
-		typeData == null
-			? null
-			: {
-					...typeData,
-					fields: fieldsJson,
-					name: cipher.name,
-					notes: cipher.notes,
-					passwordHistory: passwordHistoryJson
-				}
+	// Do not emit legacy cipher `data` object — clients 2026.7.0+ (WASM SDK)
+	// type `data` as string|undefined for blob encryption; an object crashes decrypt
+	// (vaultwarden #7434 / Bitwarden clients #20765).
 
 	const collectionIds = sync.cipherCollections.get(cipher.uuid) ?? []
 
@@ -399,7 +392,6 @@ export async function cipherToJson(cipher: Cipher, opts: CipherJsonOptions): Pro
 		name: cipher.name,
 		notes: cipher.notes,
 		fields: fieldsJson,
-		data: dataJson,
 		passwordHistory: passwordHistoryJson,
 		login: null,
 		secureNote: null,
@@ -501,7 +493,7 @@ export function sendToJson(send: Send): JsonMap {
 			: null,
 		authType: send.passwordHash ? 1 : 0,
 		disabled: send.disabled,
-		hideEmail: send.hideEmail,
+		hideEmail: send.hideEmail ?? false,
 		revisionDate: toApi(send.revisionDate),
 		expirationDate: toApi(send.expirationDate),
 		deletionDate: toApi(send.deletionDate),

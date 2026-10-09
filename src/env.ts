@@ -23,6 +23,9 @@ export interface Bindings {
 	// Secrets
 	JWT_SECRET: string
 	ADMIN_TOKEN?: string
+	// Optional: Resend API key (https://resend.com). When set, mail is sent
+	// via Resend's HTTP API instead of the Cloudflare Email Sending binding.
+	RESEND_API_KEY?: string
 
 	// Vars (strings; parsed by config.ts)
 	DOMAIN?: string

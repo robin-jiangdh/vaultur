@@ -138,7 +138,7 @@ async function adminIndex(c: Ctx) {
 		renderSettings({
 			cfg,
 			overridden,
-			bindingPresent: Boolean(c.env.VAULTUR_EMAIL),
+			bindingPresent: Boolean(c.env.VAULTUR_EMAIL || c.env.RESEND_API_KEY),
 			adminTokenInsecure: adminTokenWeak(c.env.ADMIN_TOKEN)
 		})
 	)

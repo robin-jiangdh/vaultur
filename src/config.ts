@@ -27,6 +27,7 @@ export interface Config {
 	passwordIterations: number
 	emailFrom: string
 	emailFromName: string
+	resendApiKey: string
 	emailEnabled: boolean
 	pushEnabled: boolean
 	pushInstallationId: string
@@ -104,7 +105,8 @@ export function loadConfig(env: Bindings, requestUrl: string): Config {
 		passwordIterations: clamp(int(env.PASSWORD_ITERATIONS, 600_000), 1, 2_000_000),
 		emailFrom,
 		emailFromName: env.EMAIL_FROM_NAME || "Vaultur",
-		emailEnabled: Boolean(env.VAULTUR_EMAIL && emailFrom),
+		resendApiKey: env.RESEND_API_KEY ?? "",
+		emailEnabled: Boolean((env.VAULTUR_EMAIL || env.RESEND_API_KEY) && emailFrom),
 		pushEnabled: bool(env.PUSH_ENABLED, false),
 		pushInstallationId: env.PUSH_INSTALLATION_ID ?? "",
 		pushInstallationKey: env.PUSH_INSTALLATION_KEY ?? "",
@@ -126,7 +128,10 @@ export function loadConfig(env: Bindings, requestUrl: string): Config {
 		orgGroupsEnabled: bool(env.ORG_GROUPS_ENABLED, false),
 		orgEventsEnabled: bool(env.ORG_EVENTS_ENABLED, false),
 		// vaultwarden defaults email 2FA availability to "mail is configured"
-		enableEmail2fa: bool(env._ENABLE_EMAIL_2FA, Boolean(env.VAULTUR_EMAIL && emailFrom)),
+		enableEmail2fa: bool(
+			env._ENABLE_EMAIL_2FA,
+			Boolean((env.VAULTUR_EMAIL || env.RESEND_API_KEY) && emailFrom),
+		),
 		enableDuo: bool(env._ENABLE_DUO, true),
 		enableYubico: bool(env._ENABLE_YUBICO, true),
 		yubicoClientId: env.YUBICO_CLIENT_ID ?? "",

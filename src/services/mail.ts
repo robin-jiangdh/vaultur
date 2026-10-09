@@ -22,13 +22,61 @@ export interface Mailer {
 	send(to: string, subject: string, html: string, text: string): Promise<void>
 }
 
+/**
+ * Send via Resend's HTTP API (https://resend.com).
+ * Used when the RESEND_API_KEY secret is set; takes precedence over the
+ * Cloudflare Email Sending binding so a third-party provider can be used
+ * without Cloudflare-side email onboarding.
+ */
+async function sendViaResend(
+	apiKey: string,
+	fromEmail: string,
+	fromName: string,
+	to: string,
+	subject: string,
+	html: string,
+	text: string
+): Promise<void> {
+	const res = await fetch("https://api.resend.com/emails", {
+		method: "POST",
+		headers: {
+			Authorization: `Bearer ${apiKey}`,
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify({
+			from: fromName ? `${fromName} <${fromEmail}>` : fromEmail,
+			to: [to],
+			subject,
+			html,
+			text
+		})
+	})
+	if (!res.ok) {
+		const body = await res.text().catch(() => "")
+		throw new Error(`Resend API error ${res.status}: ${body.slice(0, 300)}`)
+	}
+}
+
 export function createMailer(binding: EmailBinding | undefined, config: Config): Mailer {
-	const enabled = Boolean(binding && config.emailFrom)
+	const resendKey = config.resendApiKey
+	const enabled = Boolean((binding || resendKey) && config.emailFrom)
 	return {
 		enabled,
 		async send(to, subject, html, text) {
 			if (!enabled) {
 				console.warn(`Mail disabled; skipping "${subject}" to ${to}`)
+				return
+			}
+			if (resendKey) {
+				await sendViaResend(
+					resendKey,
+					config.emailFrom,
+					config.emailFromName,
+					to,
+					subject,
+					html,
+					text
+				)
 				return
 			}
 			await binding!.send({
